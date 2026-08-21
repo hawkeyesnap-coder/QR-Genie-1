@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-deep:#04070F;
+    --bg-panel:#0B1220;
+    --bg-panel-2:#101B31;
+    --line:#1E2C47;
+    --muted:#8B98B5;
+    --text:#F4F6FB;
+    --accent:#0064FF;
+    --accent-2:#00C6FF;
+    --accent-soft:rgba(0,100,255,0.16);
+    --white:#FFFFFF;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Inter', sans-serif;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(0,100,255,0.25), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(0,198,255,0.14), transparent 55%),
+      var(--bg-deep);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:960px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .brand-mark{
+    width:28px; height:28px;
+    background:linear-gradient(135deg, var(--accent-2), var(--accent));
+    border-radius:7px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    color:var(--white);
+  }
+  .brand-name{
+    font-family:'Montserrat', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.01em;
+    color:var(--text);
+  }
+  .brand-name span{ color:var(--accent-2); }
+
+  h1{
+    font-family:'Montserrat', sans-serif;
+    font-weight:800;
+    font-size:clamp(32px, 4.5vw, 46px);
+    letter-spacing:-0.01em;
+    margin-bottom:10px;
+    background:linear-gradient(90deg, #FFFFFF 40%, var(--accent-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  .sub{
+    color:var(--muted);
+    font-size:15px;
+    margin-bottom:36px;
+    max-width:520px;
+  }
+
+  .card{
+    background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-2));
+    border:1px solid var(--line);
+    border-radius:16px;
+    box-shadow: 0 30px 60px -20px rgba(0,20,60,0.6), 0 0 0 1px rgba(0,100,255,0.05);
+    display:grid;
+    grid-template-columns: 1.15fr 1fr;
+    overflow:hidden;
+  }
+
+  @media (max-width: 720px){
+    .card{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    padding:36px;
+  }
+
+  .panel-left{
+    border-right:1px solid var(--line);
+  }
+
+  @media (max-width: 720px){
+    .panel-left{ border-right:none; border-bottom:1px solid var(--line); }
+  }
+
+  label{
+    display:block;
+    font-family:'Montserrat', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+    margin-top:22px;
+  }
+  label:first-child{ margin-top:0; }
+
+  input[type="text"], select, textarea{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--bg-deep);
+    color:var(--text);
+    outline:none;
+  }
+
+  input[type="text"]:focus, select:focus, textarea:focus{
+    background:#060B16;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    border-color:var(--accent);
+  }
+
+  select option{ background:var(--bg-panel); color:var(--text); }
+
+  .row{
+    display:flex;
+    gap:14px;
+  }
+  .row > div{ flex:1; }
+
+  .swatches{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  input[type="color"]{
+    width:38px; height:38px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:0;
+    cursor:pointer;
+    background:none;
+  }
+
+  .size-label{
+    font-family:'Montserrat', sans-serif;
+    font-size:13px;
+    color:var(--text);
+    min-width:56px;
+  }
+
+  input[type="range"]{
+    width:100%;
+    accent-color:var(--accent);
+  }
+
+  button{
+    margin-top:28px;
+    width:100%;
+    font-family:'Montserrat', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+    color:var(--white);
+    border:none;
+    border-radius:8px;
+    padding:14px;
+    cursor:pointer;
+    transition:transform .08s ease, box-shadow .15s ease;
+  }
+  button:hover{ box-shadow:0 8px 24px -6px rgba(0,100,255,0.55); }
+  button:active{ transform:translateY(1px); }
+
+  .panel-right{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:36px;
+    position:relative;
+    overflow:hidden;
+    background:radial-gradient(500px 300px at 50% 20%, rgba(0,100,255,0.12), transparent 70%);
+  }
+
+  .stage{
+    position:relative;
+    width:220px;
+    height:220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+    border-radius:12px;
+  }
+
+  #qrcode{
+    width:200px; height:200px;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0;
+    transition:opacity .25s ease;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  #qrcode.ready{ opacity:1; }
+  #qrcode img, #qrcode canvas{
+    image-rendering: pixelated;
+  }
+
+  .scanline{
+    position:absolute;
+    left:0; right:0;
+    height:2px;
+    background:var(--accent-2);
+    box-shadow:0 0 10px var(--accent-2);
+    top:0;
+    opacity:0;
+    pointer-events:none;
+  }
+  .scanline.run{
+    animation: sweep 0.9s ease-in-out;
+  }
+  @keyframes sweep{
+    0%{ top:0; opacity:1; }
+    90%{ opacity:1; }
+    100%{ top:100%; opacity:0; }
+  }
+
+  .placeholder{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    color:var(--muted);
+    text-align:center;
+    max-width:160px;
+    position:absolute;
+  }
+
+  .dl-row{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    width:100%;
+  }
+  .dl-row button{
+    margin-top:0;
+    background:var(--bg-deep);
+    color:var(--text);
+    border:1px solid var(--line);
+    font-size:11px;
+  }
+  .dl-row button:hover{
+    background:var(--bg-panel-2);
+    box-shadow:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-mark">QR</div>
+    <div class="brand-name">QR Code <span>Generator</span></div>
+  </div>
+  <h1>QR Code Generator</h1>
+  <p class="sub">Type, paste, or link — encoded instantly in your browser. Nothing leaves this page.</p>
+
+  <div class="card">
+    <div class="panel panel-left">
+      <label for="text">Content</label>
+      <textarea id="text" rows="3" placeholder="https://example.com or any text">https://claude.ai</textarea>
+
+      <div class="row">
+        <div>
+          <label for="fg">Foreground</label>
+          <div class="swatches">
+            <input type="color" id="fg" value="#1a1a18">
+            <span class="size-label" id="fgVal">#1A1A18</span>
+          </div>
+        </div>
+        <div>
+          <label for="bg">Background</label>
+          <div class="swatches">
+            <input type="color" id="bg" value="#ffffff">
+            <span class="size-label" id="bgVal">#FFFFFF</span>
+          </div>
+        </div>
+      </div>
+
+      <label for="size">Size</label>
+      <div class="row" style="align-items:center;">
+        <input type="range" id="size" min="120" max="480" step="20" value="240">
+        <span class="size-label" id="sizeVal">240px</span>
+      </div>
+
+      <label for="ecl">Error correction</label>
+      <select id="ecl">
+        <option value="L">L — Low (7%)</option>
+        <option value="M" selected>M — Medium (15%)</option>
+        <option value="Q">Q — Quartile (25%)</option>
+        <option value="H">H — High (30%)</option>
+      </select>
+
+      <button id="generate">Generate</button>
+    </div>
+
+    <div class="panel panel-right">
+      <div class="stage">
+        <div class="scanline" id="scanline"></div>
+        <div id="qrcode"></div>
+        <div class="placeholder" id="placeholder">Your code renders here on generate</div>
+      </div>
+      <div class="dl-row">
+        <button id="dlPng">Download PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const textEl = document.getElementById('text');
+  const fgEl = document.getElementById('fg');
+  const bgEl = document.getElementById('bg');
+  const fgVal = document.getElementById('fgVal');
+  const bgVal = document.getElementById('bgVal');
+  const sizeEl = document.getElementById('size');
+  const sizeVal = document.getElementById('sizeVal');
+  const eclEl = document.getElementById('ecl');
+  const qrDiv = document.getElementById('qrcode');
+  const placeholder = document.getElementById('placeholder');
+  const scanline = document.getElementById('scanline');
+  const genBtn = document.getElementById('generate');
+  const dlPngBtn = document.getElementById('dlPng');
+
+  let qr = null;
+
+  const eclMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
+
+  fgEl.addEventListener('input', () => fgVal.textContent = fgEl.value.toUpperCase());
+  bgEl.addEventListener('input', () => bgVal.textContent = bgEl.value.toUpperCase());
+  sizeEl.addEventListener('input', () => sizeVal.textContent = sizeEl.value + 'px');
+
+  function generate(){
+    const value = textEl.value.trim();
+    if(!value){
+      placeholder.style.display = 'block';
+      placeholder.textContent = 'Enter some content first';
+      qrDiv.classList.remove('ready');
+      return;
+    }
+
+    qrDiv.innerHTML = '';
+    const renderSize = Math.min(parseInt(sizeEl.value), 200); // stage box is 200 internal
+    qr = new QRCode(qrDiv, {
+      text: value,
+      width: 200,
+      height: 200,
+      colorDark: fgEl.value,
+      colorLight: bgEl.value,
+      correctLevel: eclMap[eclEl.value]
+    });
+
+    placeholder.style.display = 'none';
+    qrDiv.classList.remove('ready');
+    scanline.classList.remove('run');
+    void scanline.offsetWidth; // restart animation
+    scanline.classList.add('run');
+
+    setTimeout(() => qrDiv.classList.add('ready'), 80);
+  }
+
+  function downloadPng(){
+    const value = textEl.value.trim();
+    if(!value){
+      generate();
+      return;
+    }
+    const targetSize = parseInt(sizeEl.value);
+
+    // Re-render at the requested export size for a crisp download
+    const exportDiv = document.createElement('div');
+    exportDiv.style.display = 'none';
+    document.body.appendChild(exportDiv);
+    new QRCode(exportDiv, {
+      text: value,
+      width: targetSize,
+      height: targetSize,
+      colorDark: fgEl.value,
+      colorLight: bgEl.value,
+      correctLevel: eclMap[eclEl.value]
+    });
+
+    setTimeout(() => {
+      const exportCanvas = exportDiv.querySelector('canvas');
+      const exportImg = exportDiv.querySelector('img');
+      const link = document.createElement('a');
+      link.download = 'qrcode.png';
+      link.href = exportCanvas ? exportCanvas.toDataURL('image/png') : exportImg.src;
+      link.click();
+      document.body.removeChild(exportDiv);
+    }, 100);
+  }
+
+  genBtn.addEventListener('click', generate);
+  dlPngBtn.addEventListener('click', downloadPng);
+
+  // Generate once on load with the default value
+  window.addEventListener('load', generate);
+</script>
+
+</body>
+</html>
